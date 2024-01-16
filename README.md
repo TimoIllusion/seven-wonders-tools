@@ -4,7 +4,7 @@ Helpful Streamlit app to calculate best configuration for Science Cards for maxi
 
 This App is hosted on [Steamlit.io](https://seven-wonders-tools-4kyrfc3pozzu9qghpa4kne.streamlit.app/).
 
-# Local Setup
+## Local Setup
 
 1. git clone https://github.com/TimoIllusion/seven-wonders-tools.git
 2. `cd seven-wonders-tools`
