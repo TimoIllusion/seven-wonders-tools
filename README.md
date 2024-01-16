@@ -6,7 +6,7 @@ This App is hosted on [Steamlit.io](https://seven-wonders-tools-4kyrfc3pozzu9qgh
 
 # Local Setup
 
-1. ´git clone https://github.com/TimoIllusion/seven-wonders-tools.git´
+1. git clone https://github.com/TimoIllusion/seven-wonders-tools.git
 2. `cd seven-wonders-tools`
 3. `conda create -n sevenwonders python=3.10`
 4. `conda activate sevenwonders`
