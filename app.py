@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from itertools import product
 from copy import deepcopy
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
-
 import streamlit as st
-
 
 @dataclass
 class ActiveLeaders:
@@ -23,7 +21,7 @@ class Permutation:
     fixed_stone_cards: int
     fixed_wheel_cards: int
 
-    def increase_highest_card_by_one_if_fixed_card_exist(self):
+    def increase_highest_card_by_one_if_fixed_card_exist(self) -> None:
         
         if self.fixed_stone_cards +  self.fixed_triangle_cards + self.fixed_wheel_cards > 0:
                 
@@ -42,7 +40,8 @@ class Permutation:
 
             print("No fixed cards.")
 
-    def offset_fixed_cards_by_id(self, id: int, offset: int):
+    def offset_fixed_cards_by_id(self, id: int, offset: int) -> None:
+
         if id == 0:
             self.fixed_triangle_cards += offset
         elif id == 1:
@@ -52,40 +51,20 @@ class Permutation:
         else:
             raise ValueError("Wrong id.")
         
-    def any_card_is_below_zero(self):
+    def any_card_is_below_zero(self) -> bool:
         return self.fixed_triangle_cards < 0 or self.fixed_stone_cards < 0 or self.fixed_wheel_cards < 0
     
-    def get_total_cards(self):
+    def get_total_cards(self) -> bool:
         return self.triangle_cards + self.fixed_triangle_cards, self.stone_cards + self.fixed_stone_cards, self.wheel_cards + self.fixed_wheel_cards
-
-
-def permutation_to_card_numbers(permutation: list):
-    triangles, stones, wheels = 0, 0, 0
-
-    for symbol_id in permutation:
-
-        if symbol_id == 0:
-            triangles += 1
-        elif symbol_id == 1:
-            stones += 1
-        elif symbol_id == 2:
-            wheels += 1
-        else:
-            raise ValueError(f"Wrong symbol_id in permutation! - > {symbol_id}")
-
-    return triangles, stones, wheels
 
 class App:
     active_leaders: ActiveLeaders
-    SYMBOL_IDS = [0, 1, 2] # triangles stones wheels
+    SYMBOL_IDS = [0, 1, 2] # Triangles stones wheels
 
-    
-
-    def run(self):
+    def run(self) -> None:
 
         st.title("Research points calculator")
     
-        # Input fields for three numbers
         self.num_fixed_triangles = st.number_input("Enter amount of cards with triangles:", value=0)
         self.num_fixed_stones = st.number_input("Enter amount of cards with stones:", value=0)
         self.num_fixed_wheels = st.number_input("Enter amount of cards with wheels:", value=0)
@@ -99,15 +78,15 @@ class App:
 
         total_win_points = self._determine_optimal_symbols()
         
-        # Display the sum
         st.write("Total resulting win points:", total_win_points)
 
-    def _determine_optimal_symbols(self):
+    def _determine_optimal_symbols(self) -> int:
 
-        permutations = list(product(self.SYMBOL_IDS, repeat=self.num_flex_cards))
+        flex_card_permutations = list(product(self.SYMBOL_IDS, repeat=self.num_flex_cards))
         combined_permutations: List[Permutation] = []
-        for permutation in permutations:
-            triangles, stones, wheels = permutation_to_card_numbers(permutation)
+
+        for permutation in flex_card_permutations:
+            triangles, stones, wheels = self._permutation_to_card_counts(permutation)
             p = Permutation(triangles, stones, wheels, self.num_fixed_triangles, self.num_fixed_stones, self.num_fixed_wheels)
 
             if self.active_leaders.enheduanna:
@@ -128,7 +107,7 @@ class App:
                     source_id = t_permutation[0]
                     target_id = t_permutation[1]
 
-                    # transfer cards
+                    # Transfer cards
                     p_temp.offset_fixed_cards_by_id(source_id, -1)
                     p_temp.offset_fixed_cards_by_id(target_id, +1)
 
@@ -136,10 +115,6 @@ class App:
                         pass
                     else:
                         combined_permutations.append(p_temp)
-
-
-            
-
 
         total_win_points_for_each_permutation = []
 
@@ -165,9 +140,26 @@ class App:
         
         st.write("Flex cards for triangles / stones / wheels:", best_permutation.triangle_cards, best_permutation.stone_cards, best_permutation.wheel_cards)
         st.write("Total cards for triangles / stones / wheels:", triangles, stones, wheels)
-
         
         return total_win_points
+
+    @staticmethod
+    def _permutation_to_card_counts(permutation: List[int]) -> Tuple[int, int, int]:
+
+        triangles, stones, wheels = 0, 0, 0
+
+        for symbol_id in permutation:
+
+            if symbol_id == 0:
+                triangles += 1
+            elif symbol_id == 1:
+                stones += 1
+            elif symbol_id == 2:
+                wheels += 1
+            else:
+                raise ValueError(f"Wrong symbol_id in permutation! - > {symbol_id}")
+
+        return triangles, stones, wheels
     
     def _calculate_research_win_points(self, num_cards_symbol_a: int, num_cards_symbol_b: int, num_cards_symbol_c: int) -> int:
 
@@ -187,6 +179,7 @@ class App:
         print("Cards of type C:", num_cards_symbol_c)
 
         print("Resulting win points:", total_points)
+
         return total_points
         
 
